@@ -2,3 +2,4 @@ project.md
 .env
 .env.local
 *.env
+local.properties
