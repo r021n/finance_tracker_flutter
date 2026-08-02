@@ -1,0 +1,4 @@
+project.md
+.env
+.env.local
+*.env
