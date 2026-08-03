@@ -9,3 +9,19 @@ Future<void> main() async {
 
   runApp(const ProviderScope(child: FinanceTrackerApp()));
 }
+
+class FinanceTrackerApp extends StatelessWidget {
+  const FinanceTrackerApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: "Finance Tracker",
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
+      home: const Scaffold(
+        body: Center(child: Text("Finance Tracker - Phase 1 Complete")),
+      ),
+    );
+  }
+}

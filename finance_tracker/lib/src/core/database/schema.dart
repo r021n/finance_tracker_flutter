@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS transactions (
   transaction_date  TEXT NOT NULL,
   note              TEXT,
   created_at        TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREGIN KEY (wallet_id)   REFERENCES wallets(id)    ON DELETE CASCADE,
+  FOREIGN KEY (wallet_id)   REFERENCES wallets(id)    ON DELETE CASCADE,
   FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE SET NULL
 );
 ''';
@@ -45,13 +45,13 @@ CREATE TABLE IF NOT EXISTS budgets (
   month_year    TEXT NOT NULL,      -- format YYYY-MM
   created_at    TEXT NOT NULL DEFAULT (datetime('now')),
   UNIQUE(category_id, month_year),
-  FOREGIN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
+  FOREIGN KEY (category_id) REFERENCES categories(id) ON DELETE CASCADE
 );
 ''';
 
 const String kCreateSavingsGoalsTable = '''
 CREATE TABLE IF NOT EXISTS savings_goals (
-  id              TEXT PRIMARY TEXT,
+  id              TEXT PRIMARY KEY,
   title           TEXT NOT NULL,
   target_amount   REAL NOT NULL,
   current_amount  REAL NOT NULL DEFAULT 0,
