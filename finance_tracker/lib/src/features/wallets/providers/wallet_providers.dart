@@ -18,5 +18,40 @@ class WalletListNotifier extends _$WalletListNotifier {
     return ref.watch(walletRepositoryProvider).getWallets();
   }
 
-  // next progress (03 agustus 2026, 14:28)
+  Future<void> addWallet({
+    required String name,
+    required WalletType type,
+    required double initialBalance,
+    String? icon,
+    String? color,
+  }) async {
+    final wallet = await ref
+        .read(walletRepositoryProvider)
+        .createWallet(
+          name: name,
+          type: type,
+          initialBalance: initialBalance,
+          icon: icon,
+          color: color,
+        );
+    final current = await future;
+    state = AsyncData([...current, wallet]);
+  }
+
+  Future<void> editWallet(Wallet wallet) async {
+    await ref.read(walletRepositoryProvider).updateWallet(wallet);
+    final current = await future;
+    state = AsyncData([
+      for (final w in current) w.id == wallet.id ? wallet : w,
+    ]);
+  }
+
+  Future<void> removeWallet(String id) async {
+    await ref.read(walletRepositoryProvider).deleteWallet(id);
+    final current = await future;
+    state = AsyncData([
+      for (final w in current)
+        if (w.id != id) w,
+    ]);
+  }
 }
