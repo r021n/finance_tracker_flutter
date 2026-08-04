@@ -52,6 +52,90 @@ class _AddEditWalletBottomSheetState
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final notifier = ref.read(WalletListNotifierProvider.notifier);
+    final notifier = ref.read(walletListProvider.notifier);
+    if (_isEdit) {
+      final w = widget.wallet!;
+      await notifier.editWallet(
+        w.copyWith(
+          name: _nameController.text,
+          type: _type,
+          icon: _icon,
+          color: _color,
+        ),
+      );
+    } else {
+      await notifier.addWallet(
+        name: _nameController.text.trim(),
+        type: _type,
+        initialBalance: double.tryParse(_balanceController.text) ?? 0,
+        icon: _icon,
+        color: _color,
+      );
+    }
+    if (mounted) Navigator.of(context).pop();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 16,
+        right: 16,
+        top: 16,
+        bottom: MediaQuery.of(context).viewInsets.bottom + 16,
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Text(
+              _isEdit ? "Edit Dompet" : "Tambah Dompet",
+              style: Theme.of(context).textTheme.titleLarge,
+            ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _nameController,
+              decoration: const InputDecoration(
+                labelText: "Nama Dompet",
+                border: OutlineInputBorder(),
+              ),
+              validator: (v) =>
+                  (v == null || v.trim().isEmpty) ? "Nama wajib diisi" : null,
+            ),
+            const SizedBox(height: 16),
+            SegmentedButton<WalletType>(
+              segments: const [
+                ButtonSegment(value: WalletType.cash, label: Text("Cash")),
+                ButtonSegment(value: WalletType.bank, label: Text("Bank")),
+                ButtonSegment(
+                  value: WalletType.eWallet,
+                  label: Text("E-Wallet"),
+                ),
+              ],
+              selected: {_type},
+              onSelectionChanged: (selection) =>
+                  setState(() => _type = selection.first),
+            ),
+            const SizedBox(height: 16),
+            if (!_isEdit)
+              TextFormField(
+                controller: _balanceController,
+                keyboardType: const TextInputType.numberWithOptions(
+                  decimal: true,
+                ),
+                inputFormatters: [
+                  FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+                ],
+                decoration: const InputDecoration(
+                  labelText: "Saldo Awal",
+                  border: OutlineInputBorder(),
+                ),
+              ),
+          ],
+        ),
+      ),
+    );
   }
 }
