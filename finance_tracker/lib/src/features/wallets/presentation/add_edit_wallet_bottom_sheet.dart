@@ -133,9 +133,108 @@ class _AddEditWalletBottomSheetState
                   border: OutlineInputBorder(),
                 ),
               ),
+            if (!_isEdit) const SizedBox(height: 16),
+            _ColorPickerField(
+              selected: _color,
+              onChanged: (value) => setState(() => _color = value),
+            ),
+            const SizedBox(height: 12),
+            _IconPickerField(
+              selected: _icon,
+              onChanged: (value) => setState(() => _icon = value),
+            ),
+            const SizedBox(height: 24),
+            FilledButton(
+              onPressed: _submit,
+              child: Text(_isEdit ? "Simpan" : "Tambah"),
+            ),
           ],
         ),
       ),
+    );
+  }
+}
+
+const _presetColors = [
+  '#4CAF50',
+  '#F44336',
+  '#2196F3',
+  '#FF9800',
+  '#9C27B0',
+  '#00BCD4',
+  '#FFEB3B',
+  '#795548',
+  '#607D8B',
+  '#E91E63',
+];
+
+class _ColorPickerField extends StatelessWidget {
+  const _ColorPickerField({required this.selected, required this.onChanged});
+
+  final String selected;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    final selectedColor = colorFromHex(selected);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Warna", style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final hex in _presetColors)
+              GestureDetector(
+                onTap: () => onChanged(hex),
+                child: CircleAvatar(
+                  backgroundColor: colorFromHex(hex),
+                  child: hex == selected
+                      ? const Icon(Icons.check, color: Colors.white)
+                      : null,
+                ),
+              ),
+          ],
+        ),
+        const SizedBox(height: 8),
+        Text(
+          "Terpilih: $selectedColor",
+          style: Theme.of(context).textTheme.bodySmall,
+        ),
+      ],
+    );
+  }
+}
+
+class _IconPickerField extends StatelessWidget {
+  const _IconPickerField({required this.selected, required this.onChanged});
+
+  final String selected;
+  final ValueChanged<String> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text("Ikon", style: Theme.of(context).textTheme.titleSmall),
+        const SizedBox(height: 8),
+        Wrap(
+          spacing: 8,
+          runSpacing: 8,
+          children: [
+            for (final entry in kAppIcons.entries)
+              ChoiceChip(
+                avatar: Icon(entry.value, size: 18),
+                label: const SizedBox.shrink(),
+                selected: entry.key == selected,
+                onSelected: (_) => onChanged(entry.key),
+              ),
+          ],
+        ),
+      ],
     );
   }
 }
