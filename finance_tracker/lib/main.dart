@@ -1,4 +1,5 @@
 import "package:finance_tracker/src/core/database/database_init.dart";
+import 'package:finance_tracker/src/features/wallets/presentation/wallet_list_screen.dart';
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 
@@ -19,9 +20,7 @@ class FinanceTrackerApp extends StatelessWidget {
       title: "Finance Tracker",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
-      home: const Scaffold(
-        body: Center(child: Text("Finance Tracker - Phase 1 Complete")),
-      ),
+      home: const WalletListScreen(),
     );
   }
 }
