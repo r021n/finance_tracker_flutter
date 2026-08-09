@@ -189,9 +189,42 @@ class _AddRecurringRuleScreenState
                   final filtered = categories
                       .where((c) => c.type.name == _type.name)
                       .toList();
-                  return DropdownButtonFormField<String>();
+                  return DropdownButtonFormField<String>(
+                    initialValue: _selectedCategoryId,
+                    decoration: const InputDecoration(
+                      labelText: 'Kategori',
+                      border: OutlineInputBorder(),
+                    ),
+                    items: [
+                      const DropdownMenuItem(
+                        value: null,
+                        child: Text('Tanpa Kategori'),
+                      ),
+                      ...filtered.map(
+                        (c) =>
+                            DropdownMenuItem(value: c.id, child: Text(c.name)),
+                      ),
+                    ],
+                    onChanged: (v) => setState(() => _selectedCategoryId = v),
+                  );
                 },
               ),
+              const SizedBox(height: 16),
+              OutlinedButton.icon(
+                onPressed: _pickNextRunDate,
+                icon: const Icon(Icons.calendar_today),
+                label: Text('Jalankan pertama: $_formattedNextRunDate'),
+              ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _noteController,
+                decoration: const InputDecoration(
+                  labelText: 'Catatan (opsional)',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 24),
+              FilledButton(onPressed: _submit, child: const Text('Simpan')),
             ],
           ),
         ),

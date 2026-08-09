@@ -179,7 +179,7 @@ class _TransactionTile extends ConsumerWidget {
         leading: CircularProgressIndicator(),
         title: Text('Memuat...'),
       ),
-      error: (_, __) => ListTile(title: Text(transaction.note ?? 'Transaksi')),
+      error: (_, _) => ListTile(title: Text(transaction.note ?? 'Transaksi')),
       data: (categories) {
         final category = transaction.categoryId != null
             ? categories
