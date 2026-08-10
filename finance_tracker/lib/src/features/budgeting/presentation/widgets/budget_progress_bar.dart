@@ -17,6 +17,40 @@ class BudgetProgressBar extends StatelessWidget {
     final barColor = color ?? _getColor(progress);
     final clampedProgress = progress.clamp(0.0, 1.0);
 
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: []);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(height / 2),
+          child: SizedBox(
+            height: height,
+            child: Stack(
+              children: [
+                Container(width: double.infinity, color: Colors.grey.shade200),
+                FractionallySizedBox(
+                  widthFactor: clampedProgress,
+                  child: Container(color: barColor),
+                ),
+              ],
+            ),
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          '${(progress * 100).toStringAsFixed(1)}%',
+          style: TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: barColor,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Color _getColor(double percent) {
+    if (percent > 0.9) return Colors.red;
+    if (percent > 0.7) return Colors.orange;
+    return Colors.green;
   }
 }
