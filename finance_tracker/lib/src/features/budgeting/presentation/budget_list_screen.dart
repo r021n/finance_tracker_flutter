@@ -185,7 +185,35 @@ class BudgetListScreen extends ConsumerWidget {
                     itemCount: budgets.length,
                     itemBuilder: (context, index) {
                       final item = budgets[index];
-                      return BudgetCard(item: item, onDelete: () async {});
+                      return BudgetCard(
+                        item: item,
+                        onDelete: () async {
+                          final confirmed = await showDialog<bool>(
+                            context: context,
+                            builder: (ctx) => AlertDialog(
+                              title: const Text('Hapus Anggaran?'),
+                              content: Text(
+                                'Hapus anggaran untuk ${item.categoryName}?',
+                              ),
+                              actions: [
+                                TextButton(
+                                  onPressed: () => Navigator.pop(ctx, false),
+                                  child: const Text('Batal'),
+                                ),
+                                FilledButton(
+                                  onPressed: () => Navigator.pop(ctx, true),
+                                  child: const Text('Hapus'),
+                                ),
+                              ],
+                            ),
+                          );
+                          if (confirmed == true) {
+                            await ref
+                                .read(budgetListProvider.notifier)
+                                .removeBudget(item.budget.id);
+                          }
+                        },
+                      );
                     },
                   ),
                 );
@@ -195,5 +223,49 @@ class BudgetListScreen extends ConsumerWidget {
         ],
       ),
     );
+  }
+}
+
+class _SummaryItem extends StatelessWidget {
+  const _SummaryItem({
+    required this.label,
+    required this.value,
+    this.isWarning = false,
+  });
+
+  final String label;
+  final double value;
+  final bool isWarning;
+
+  @override
+  Widget build(BuildContext context) {
+    final color = isWarning ? Colors.red : Colors.grey.shade800;
+    return Column(
+      children: [
+        Text(
+          label,
+          style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          _formatValue(value),
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: color,
+          ),
+        ),
+      ],
+    );
+  }
+
+  String _formatValue(double amount) {
+    final parts = amount.toStringAsFixed(0).split('');
+    final buffer = StringBuffer();
+    for (var i = 0; i < parts.length; i++) {
+      if (i > 0 && (parts.length - i) % 3 == 0) buffer.write('.');
+      buffer.write(parts[i]);
+    }
+    return 'Rp ${buffer.toString()}';
   }
 }
