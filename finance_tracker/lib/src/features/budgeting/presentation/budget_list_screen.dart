@@ -40,4 +40,160 @@ class BudgetListScreen extends ConsumerWidget {
     ];
     return '${monthNames[month]} $year';
   }
+
+  void _openSetBudgetDialog(BuildContext context, WidgetRef ref) async {
+    final result = await showDialog<Map<String, dynamic>>(
+      context: context,
+      builder: (_) => const SetBudgetDialog(),
+    );
+
+    if (result != null) {
+      await ref
+          .read(budgetListProvider.notifier)
+          .setBudget(
+            categoryId: result['categoryId'] as String,
+            amountLimit: result['amountLimit'] as double,
+          );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final budgetAsync = ref.watch(budgetListProvider);
+    final summaryAsync = ref.watch(budgetSummaryProvider);
+    final selectedMonth = ref.watch(selectedMonthProvider);
+    final monthOptions = _generateMonthOptions();
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Anggaran'),
+        actions: [
+          IconButton(
+            onPressed: () => _openSetBudgetDialog(context, ref),
+            icon: const Icon(Icons.add),
+            tooltip: 'Tambah Anggaran',
+          ),
+        ],
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(16),
+            child: DropdownButtonFormField<String>(
+              initialValue: selectedMonth,
+              decoration: const InputDecoration(
+                labelText: 'Bulan',
+                border: OutlineInputBorder(),
+              ),
+              items: monthOptions
+                  .map(
+                    (m) =>
+                        DropdownMenuItem(value: m, child: Text(_monthLabel(m))),
+                  )
+                  .toList(),
+              onChanged: (v) {
+                if (v != null) {
+                  ref.read(selectedMonthProvider.notifier).setMonth(v);
+                }
+              },
+            ),
+          ),
+          summaryAsync.when(
+            loading: () => const SizedBox.shrink(),
+            error: (_, _) => const SizedBox.shrink(),
+            data: (summary) => Column(
+              children: [
+                if (summary.totalLimit > 0)
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Card(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            _SummaryItem(
+                              label: 'Total Anggaran',
+                              value: summary.totalLimit,
+                            ),
+                            _SummaryItem(
+                              label: 'Total Terpakai',
+                              value: summary.totalSpent,
+                              isWarning:
+                                  summary.totalSpent > summary.totalLimit * 0.7,
+                            ),
+                            _SummaryItem(
+                              label: 'Sisa',
+                              value: summary.totalLimit - summary.totalSpent,
+                              isWarning:
+                                  summary.totalSpent > summary.totalLimit,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                BudgetWarningBanner(
+                  totalSpent: summary.totalSpent,
+                  totalLimit: summary.totalLimit,
+                ),
+              ],
+            ),
+          ),
+          Expanded(
+            child: budgetAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (e, _) => Center(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text('Gagal memuat anggaran: $e'),
+                    const SizedBox(height: 8),
+                    FilledButton(
+                      onPressed: () => ref.invalidate(budgetListProvider),
+                      child: const Text('Coba Lagi'),
+                    ),
+                  ],
+                ),
+              ),
+              data: (budgets) {
+                if (budgets.isEmpty) {
+                  return const Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.account_balance_wallet_outlined,
+                          size: 48,
+                          color: Colors.grey,
+                        ),
+                        SizedBox(height: 8),
+                        Text('Belum ada anggaran untuk bulan ini'),
+                        SizedBox(height: 4),
+                        Text(
+                          'Ketuk tombol + untuk menambahkan anggaran',
+                          style: TextStyle(color: Colors.grey),
+                        ),
+                      ],
+                    ),
+                  );
+                }
+                return RefreshIndicator(
+                  onRefresh: () => ref.refresh(budgetListProvider.future),
+                  child: ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 80),
+                    itemCount: budgets.length,
+                    itemBuilder: (context, index) {
+                      final item = budgets[index];
+                      return BudgetCard(item: item, onDelete: () async {});
+                    },
+                  ),
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
