@@ -100,9 +100,45 @@ class _AddEditSavingsGoalDialogState extends State<AddEditSavingsGoalDialog> {
                 border: OutlineInputBorder(),
               ),
             ),
+            const SizedBox(height: 16),
+            TextFormField(
+              controller: _amountController,
+              keyboardType: const TextInputType.numberWithOptions(
+                decimal: true,
+              ),
+              inputFormatters: [
+                FilteringTextInputFormatter.allow(RegExp(r'[0-9.,]')),
+              ],
+              decoration: const InputDecoration(
+                labelText: 'Target Nominal (Rp)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: _pickDate,
+              icon: const Icon(Icons.calendar_today),
+              label: Text(
+                _targetDate != null
+                    ? 'Target: $_formattedTargetDate'
+                    : 'Pilih Tanggal Target (opsional)',
+              ),
+            ),
+            if (_targetDate != null)
+              TextButton(
+                onPressed: () => setState(() => _targetDate = null),
+                child: const Text('Hapus Tanggal'),
+              ),
           ],
         ),
       ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Batal'),
+        ),
+        FilledButton(onPressed: _submit, child: const Text('Simpan')),
+      ],
     );
   }
 }
