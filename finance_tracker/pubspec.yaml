@@ -19,6 +19,12 @@ dependencies:
   uuid: ^4.6.0
   json_annotation: 4.9.0
   http: ^1.2.0
+  fl_chart: ^1.2.0
+  csv: ^8.0.0
+  pdf: ^3.13.0
+  printing: ^5.15.0
+  path_provider: ^2.1.6
+  share_plus: ^13.3.0
 
 dev_dependencies:
   flutter_test:
