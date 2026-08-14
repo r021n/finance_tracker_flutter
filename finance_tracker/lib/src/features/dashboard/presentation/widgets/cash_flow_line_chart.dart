@@ -83,6 +83,54 @@ class CashFlowLineChart extends StatelessWidget {
                 ),
               ),
             ),
+            borderData: FlBorderData(show: false),
+            minX: 0,
+            maxX: (data.length - 1).toDouble(),
+            minY: 0,
+            maxY: maxY > 0 ? maxY * 1.2 : 10,
+            lineBarsData: [
+              LineChartBarData(
+                spots: incomeSpots,
+                isCurved: true,
+                color: Colors.green,
+                barWidth: 2,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.green.withValues(alpha: 0.1),
+                ),
+              ),
+              LineChartBarData(
+                spots: expenseSpots,
+                isCurved: true,
+                color: Colors.red,
+                barWidth: 2,
+                isStrokeCapRound: true,
+                dotData: const FlDotData(show: false),
+                belowBarData: BarAreaData(
+                  show: true,
+                  color: Colors.red.withValues(alpha: 0.1),
+                ),
+              ),
+            ],
+            lineTouchData: LineTouchData(
+              touchTooltipData: LineTouchTooltipData(
+                getTooltipItems: (touchedSpots) {
+                  return touchedSpots.map((spot) {
+                    final isIncome = spot.barIndex == 0;
+                    final label = isIncome ? 'Pemasukan' : 'Pengeluaran';
+                    return LineTooltipItem(
+                      '$label\nRp ${spot.y.toStringAsFixed(0)}',
+                      TextStyle(
+                        color: isIncome ? Colors.green : Colors.red,
+                        fontSize: 12,
+                      ),
+                    );
+                  }).toList();
+                },
+              ),
+            ),
           ),
         ),
       ),
