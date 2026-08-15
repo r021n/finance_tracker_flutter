@@ -1,5 +1,5 @@
 import "package:finance_tracker/src/core/database/database_init.dart";
-import 'package:finance_tracker/src/features/wallets/presentation/wallet_list_screen.dart';
+import 'package:finance_tracker/src/features/dashboard/presentation/dashboard_screen.dart';
 import "package:flutter/material.dart";
 import "package:flutter_riverpod/flutter_riverpod.dart";
 import "package:finance_tracker/src/core/database/turso_client.dart";
@@ -24,7 +24,7 @@ class FinanceTrackerApp extends StatelessWidget {
       title: "Finance Tracker",
       debugShowCheckedModeBanner: false,
       theme: ThemeData(colorSchemeSeed: Colors.green, useMaterial3: true),
-      home: const WalletListScreen(),
+      home: const DashboardScreen(),
     );
   }
 }
