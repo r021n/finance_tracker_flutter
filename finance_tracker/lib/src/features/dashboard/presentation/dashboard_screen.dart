@@ -238,3 +238,148 @@ class _SummaryCardError extends StatelessWidget {
     );
   }
 }
+
+class _QuickActions extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        Expanded(
+          child: _QuickActionCard(
+            icon: Icons.add_circle,
+            label: 'Tambah\nTransaksi',
+            color: Colors.green,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AddTransactionScreen()),
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 8),
+        Expanded(
+          child: _QuickActionCard(
+            icon: Icons.history,
+            label: 'Riwayat\nTransaksi',
+            color: Colors.blue,
+            onTap: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (_) => const TransactionHistoryScreen(),
+                ),
+              );
+            },
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _QuickActionCard extends StatelessWidget {
+  const _QuickActionCard({
+    required this.icon,
+    required this.label,
+    required this.color,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final Color color;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(12),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 16),
+          child: Column(
+            children: [
+              Icon(icon, color: color, size: 28),
+              const SizedBox(height: 8),
+              Text(
+                label,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _RecentTransactions extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final transactionsAsync = ref.watch(transactionListProvider);
+
+    return transactionsAsync.when(
+      loading: () => const SizedBox(
+        height: 80,
+        child: Center(child: CircularProgressIndicator()),
+      ),
+      error: (e, _) =>
+          SizedBox(height: 80, child: Center(child: Text('Gagal memuat: $e'))),
+      data: (transactions) {
+        final recent = transactions.take(5).toList();
+
+        if (recent.isEmpty) {
+          return const SizedBox(
+            height: 80,
+            child: Center(child: Text('Belum ada transaksi')),
+          );
+        }
+
+        return Column(
+          children: recent.map((t) {
+            final isExpense = t.type.name == 'expense';
+            final amountColor = isExpense ? Colors.red : Colors.green;
+            final prefix = isExpense ? '-' : '+';
+
+            return Card(
+              child: ListTile(
+                leading: CircleAvatar(
+                  backgroundColor: amountColor.withValues(alpha: 0.1),
+                  child: Icon(
+                    isExpense ? Icons.arrow_upward : Icons.arrow_downward,
+                    color: amountColor,
+                    size: 18,
+                  ),
+                ),
+                title: Text(
+                  t.note ?? 'Transaksi',
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                ),
+                subtitle: Text(
+                  t.transactionDate.length >= 10
+                      ? t.transactionDate.substring(0, 10)
+                      : t.transactionDate,
+                  style: const TextStyle(fontSize: 12),
+                ),
+                trailing: Text(
+                  '$prefix${formatCurrency(t.amount)}',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: amountColor,
+                    fontSize: 13,
+                  ),
+                ),
+              ),
+            );
+          }).toList(),
+        );
+      },
+    );
+  }
+}
