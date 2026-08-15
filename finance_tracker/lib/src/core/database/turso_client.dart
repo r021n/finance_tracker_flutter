@@ -108,11 +108,27 @@ class TursoClient {
       final map = <String, dynamic>{};
       for (var i = 0; i < cols.length; i++) {
         final cell = values[i] as Map<String, dynamic>;
-        map[cols[i]] = cell['value'];
+        final type = cell['type'] as String?;
+        final raw = cell['value'];
+        map[cols[i]] = _coerceValue(raw, type);
       }
       return map;
     }).toList();
 
     return rows;
+  }
+
+  dynamic _coerceValue(dynamic raw, String? type) {
+    if (raw == null) return null;
+    if (raw is num) return raw;
+    if (raw is String) {
+      if (type == 'integer' || type == 'int') {
+        return int.tryParse(raw) ?? raw;
+      }
+      if (type == 'float' || type == 'real' || type == 'double') {
+        return double.tryParse(raw) ?? raw;
+      }
+    }
+    return raw;
   }
 }

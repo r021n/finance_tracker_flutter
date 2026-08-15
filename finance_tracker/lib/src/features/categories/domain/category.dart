@@ -5,6 +5,8 @@ part 'category.g.dart';
 
 enum CategoryType { expense, income }
 
+bool _intToBool(dynamic value) => value == 1 || value == true;
+
 @freezed
 abstract class Category with _$Category {
   const Category._();
@@ -15,7 +17,7 @@ abstract class Category with _$Category {
     required CategoryType type,
     String? icon,
     String? color,
-    @Default(false) bool isDefault,
+    @JsonKey(fromJson: _intToBool) @Default(false) bool isDefault,
     String? createdAt,
   }) = _Category;
 

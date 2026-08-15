@@ -73,4 +73,31 @@ class WalletRepository {
   Future<void> deleteWallet(String id) async {
     await _client.execute("DELETE FROM wallets WHERE id = ?", args: [id]);
   }
+
+  Future<void> reconcileBalances() async {
+    final wallets = await getWallets();
+    final txRows = await _client.query(
+      'SELECT wallet_id, type, amount FROM transactions',
+    );
+
+    final balanceMap = <String, double>{};
+    for (final w in wallets) {
+      balanceMap[w.id] = 0;
+    }
+
+    for (final row in txRows) {
+      final walletId = row['wallet_id'] as String;
+      final type = row['type'] as String;
+      final amount = (row['amount'] as num).toDouble();
+      final current = balanceMap[walletId] ?? 0;
+      balanceMap[walletId] = type == 'income' ? current + amount : current - amount;
+    }
+
+    for (final entry in balanceMap.entries) {
+      await _client.execute(
+        'UPDATE wallets SET balance = ? WHERE id = ?',
+        args: [entry.value, entry.key],
+      );
+    }
+  }
 }
