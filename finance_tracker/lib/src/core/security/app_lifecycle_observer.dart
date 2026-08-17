@@ -33,4 +33,25 @@ class _AppLifecycleObserverState extends ConsumerState<AppLifecycleObserver>
       _showLockScreenIfNeeded();
     }
   }
+
+  Future<void> _showLockScreenIfNeeded() async {
+    final securityService = ref.read(securityServiceProvider);
+
+    final pinConfigured = await securityService.isPinConfigured();
+    final biometricAvailable = await securityService.canCheckBiometrics();
+
+    if (pinConfigured || biometricAvailable) {
+      if (!mounted) return;
+
+      Navigator.of(context).pushAndRemoveUntil(
+        MaterialPageRoute(builder: (_) => const LockScreen()),
+        (route) => false,
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return widget.child;
+  }
 }
