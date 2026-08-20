@@ -61,13 +61,13 @@ class TursoClient {
     if (value == null) {
       return {'type': 'null', 'value': null};
     } else if (value is int) {
-      return {'type': 'integer', 'value': value};
+      return {'type': 'integer', 'value': value.toString()};
     } else if (value is double) {
       // Kirim sebagai integer jika tidak ada decimal
       if (value == value.roundToDouble()) {
-        return {'type': 'integer', 'value': value.toInt()};
+        return {'type': 'integer', 'value': value.toInt().toString()};
       }
-      return {'type': 'float', 'value': value};
+      return {'type': 'float', 'value': value.toString()};
     } else if (value is String) {
       return {'type': 'text', 'value': value};
     } else {

@@ -39,6 +39,11 @@ class DashboardScreen extends ConsumerWidget {
           ref.invalidate(dashboardSummaryProvider);
           ref.invalidate(dailyCashFlowProvider);
           ref.invalidate(categoryExpenseProvider);
+          await Future.wait([
+            ref.read(dashboardSummaryProvider.future),
+            ref.read(dailyCashFlowProvider.future),
+            ref.read(categoryExpenseProvider.future),
+          ]);
         },
         child: ListView(
           padding: const EdgeInsets.all(16),
