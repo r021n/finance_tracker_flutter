@@ -197,19 +197,27 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
             walletAsync.when(
               loading: () => const CircularProgressIndicator(),
               error: (e, _) => Text('Error: $e'),
-              data: (wallets) => DropdownButtonFormField<String>(
-                initialValue: _selectedWalletId,
-                decoration: const InputDecoration(
-                  labelText: 'Dompet',
-                  border: OutlineInputBorder(),
-                ),
-                items: wallets
-                    .map(
-                      (w) => DropdownMenuItem(value: w.id, child: Text(w.name)),
-                    )
-                    .toList(),
-                onChanged: (v) => setState(() => _selectedWalletId = v),
-              ),
+              data: (wallets) {
+                // Auto-select wallet pertama jika belum dipilih
+                if (_selectedWalletId == null && wallets.isNotEmpty) {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    if (mounted) setState(() => _selectedWalletId = wallets.first.id);
+                  });
+                }
+                return DropdownButtonFormField<String>(
+                  initialValue: _selectedWalletId,
+                  decoration: const InputDecoration(
+                    labelText: 'Dompet',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: wallets
+                      .map(
+                        (w) => DropdownMenuItem(value: w.id, child: Text(w.name)),
+                      )
+                      .toList(),
+                  onChanged: (v) => setState(() => _selectedWalletId = v),
+                );
+              },
             ),
             const SizedBox(height: 16),
             categoriesAsync.when(

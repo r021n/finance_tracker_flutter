@@ -12,9 +12,14 @@ import "package:finance_tracker/src/core/network/network_status_provider.dart";
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  await initDatabase();
-  final recurringChecker = RecurringChecker(TursoClient());
-  await recurringChecker.checkAndRunDueTransactions();
+  try {
+    await initDatabase();
+    final recurringChecker = RecurringChecker(TursoClient());
+    await recurringChecker.checkAndRunDueTransactions();
+  } catch (e, stackTrace) {
+    debugPrint('Error during initialization: $e');
+    debugPrint('Stack trace: $stackTrace');
+  }
 
   runApp(const ProviderScope(child: FinanceTrackerApp()));
 }
@@ -53,16 +58,25 @@ class _InitialScreenState extends ConsumerState<_InitialScreen> {
   }
 
   Future<void> _checkSecurity() async {
-    final securityService = ref.read(securityServiceProvider);
-    final pinConfigured = await securityService.isPinConfigured();
-    final biometricAvailable = await securityService.canCheckBiometrics();
+    try {
+      final securityService = ref.read(securityServiceProvider);
+      final pinConfigured = await securityService.isPinConfigured();
+      final biometricAvailable = await securityService.canCheckBiometrics();
 
-    if (mounted) {
-      setState(() {
-        // Kunci jika PIN sudah diatur atau biometrik tersedia
-        _shouldLock = pinConfigured || biometricAvailable;
-        _isLoading = false;
-      });
+      if (mounted) {
+        setState(() {
+          // Kunci jika PIN sudah diatur atau biometrik tersedia
+          _shouldLock = pinConfigured || biometricAvailable;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      debugPrint('Security check error: $e');
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+      }
     }
   }
 

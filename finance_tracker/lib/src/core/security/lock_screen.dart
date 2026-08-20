@@ -39,7 +39,8 @@ class _LockScreenState extends ConsumerState<LockScreen> {
 
     setState(() {
       _isPinConfigured = configured;
-      _isSetupMode = !configured && !biometricAvailable;
+      // Tampilkan mode setup jika PIN belum diatur
+      _isSetupMode = !configured;
     });
 
     if (biometricAvailable) {
@@ -48,10 +49,14 @@ class _LockScreenState extends ConsumerState<LockScreen> {
   }
 
   Future<void> _tryBiometric() async {
-    final securityService = ref.read(securityServiceProvider);
-    final success = await securityService.authenticateWithBiometrics();
-    if (success && mounted) {
-      _navigateToHome();
+    try {
+      final securityService = ref.read(securityServiceProvider);
+      final success = await securityService.authenticateWithBiometrics();
+      if (success && mounted) {
+        _navigateToHome();
+      }
+    } catch (e) {
+      debugPrint('Biometric error: $e');
     }
   }
 
